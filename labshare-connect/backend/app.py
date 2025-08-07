@@ -172,6 +172,7 @@ def serve_react(path):
     return send_from_directory(app.static_folder, 'index.html')
 
 
+
 # ✅ DB Init
 with app.app_context():
     db.create_all()
