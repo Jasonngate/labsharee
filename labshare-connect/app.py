@@ -17,8 +17,6 @@ load_dotenv()
 app = Flask(__name__, static_folder='backend/static', static_url_path='')
 
 
-
-
 # ✅ Secret key from .env
 app.secret_key = os.getenv("SECRET_KEY", "fallback-secret-key")
 
@@ -170,16 +168,24 @@ def admin_logout():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react(path):
-    file_path = os.path.join(app.static_folder, path)
-    if os.path.exists(file_path) and os.path.isfile(file_path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, 'index.html')
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
+
+
 
 
 
 # ✅ DB Init
 with app.app_context():
     db.create_all()
+
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory(app.static_folder, 'index.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
