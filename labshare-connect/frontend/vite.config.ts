@@ -4,15 +4,18 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "/", // ✅ ADD THIS LINE
+  base: "/", // ✅ Ensure correct path resolution
   server: {
     host: "::",
     port: 8080,
   },
+  build: {
+    outDir: "../static",     // ✅ Build directly into Flask's static folder
+    emptyOutDir: true,       // ✅ Clear old builds
+  },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {

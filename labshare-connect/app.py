@@ -14,10 +14,8 @@ import cloudinary.uploader
 load_dotenv()
 
 # ✅ Dynamically resolve the absolute path to backend/static
-basedir = os.path.abspath(os.path.dirname(__file__))
-static_path = os.path.join(basedir, 'backend', 'static')
+app = Flask(__name__, static_folder='static', static_url_path='')
 
-app = Flask(__name__, static_folder=static_path, static_url_path='')
 
 
 # ✅ Secret key from .env
