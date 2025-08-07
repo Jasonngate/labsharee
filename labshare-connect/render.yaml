@@ -2,6 +2,15 @@ services:
   - type: web
     name: labshare-backend
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      pip install -r requirements.txt
+      cd frontend
+      npm install
+      npm run build
+      mkdir -p ../backend/static
+      cp -r dist/* ../backend/static/
     startCommand: gunicorn app:app
-    plan: free
+    buildFilter:
+      paths:
+        - frontend/**
+        - backend/**
