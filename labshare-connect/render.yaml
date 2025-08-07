@@ -1,8 +1,7 @@
 services:
   - type: web
-    name: labshare-app
+    name: labshare-backend
     env: python
-    buildCommand: ""
+    buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     plan: free
-    autoDeploy: true
