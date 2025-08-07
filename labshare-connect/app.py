@@ -14,7 +14,8 @@ import cloudinary.uploader
 load_dotenv()
 
 # ✅ Dynamically resolve the absolute path to backend/static
-app = Flask(__name__, static_folder='static', static_url_path='')
+app = Flask(__name__, static_folder='backend/static', static_url_path='')
+
 
 
 
