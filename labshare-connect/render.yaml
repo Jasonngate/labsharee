@@ -3,12 +3,27 @@ services:
     name: labshare-backend
     env: python
     buildCommand: |
+      # 1️⃣ Install backend dependencies
       pip install -r requirements.txt
+      
+      # 2️⃣ Build the frontend (Vite)
       cd frontend
       npm install
       npm run build
+
+      # 3️⃣ Safety check: make sure dist exists and is not empty
+      if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
+        echo "❌ Frontend build failed — dist folder is missing or empty."
+        exit 1
+      fi
+
+      # 4️⃣ Copy build output to backend/static
+      rm -rf ../backend/static/*
       mkdir -p ../backend/static
       cp -r dist/* ../backend/static/
+
+      # 5️⃣ Go back to root
+      cd ..
     startCommand: gunicorn app:app
     buildFilter:
       paths:
