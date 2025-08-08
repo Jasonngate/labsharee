@@ -16,7 +16,6 @@ load_dotenv()
 # ✅ Dynamically resolve the absolute path to backend/static
 app = Flask(__name__, static_folder='backend/static', static_url_path='')
 
-
 # ✅ Secret key from .env
 app.secret_key = os.getenv("SECRET_KEY", "fallback-secret-key")
 
@@ -185,6 +184,11 @@ with app.app_context():
 @app.errorhandler(404)
 def not_found(e):
     return send_from_directory(app.static_folder, 'index.html')
+
+
+@app.route('/test')
+def test():
+    return 'Server is running!'
 
 
 if __name__ == '__main__':
