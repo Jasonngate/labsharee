@@ -1,34 +1,22 @@
 services:
   - type: web
-    name: labshare-backend
+    name: labshare-connect
     env: python
     buildCommand: |
-      # 1️⃣ Install backend dependencies
+      # 1. Install Python dependencies
       pip install -r requirements.txt
-      
-      # 2️⃣ Build the frontend (Vite)
-      cd labshare/labshare-connect/frontend
+
+      # 2. Install frontend dependencies
+      cd frontend
       npm install
+
+      # 3. Build frontend directly into backend/static
       npm run build
 
-      # 3️⃣ Safety check
-      if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
-        echo "❌ Frontend build failed — dist folder missing or empty."
-        exit 1
-      fi
-
-      # 4️⃣ Copy build output to backend/static
-      rm -rf ../../backend/static/*
-      mkdir -p ../../backend/static
-      cp -r dist/* ../../backend/static/
-
-      # 5️⃣ Debug check — list backend/static after copy
-      ls -R ../../backend/static
-
-      # 6️⃣ Go back to root
-      cd ../../..
-    startCommand: gunicorn app:app
-    buildFilter:
-      paths:
-        - labshare/labshare-connect/frontend/**
-        - labshare/labshare-connect/backend/**
+      # Go back to root for startCommand
+      cd ..
+    startCommand: gunicorn labshare-connect.app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+    plan: free

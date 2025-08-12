@@ -10,11 +10,39 @@ from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
 
+import os
+from flask import Flask, request, jsonify, session, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
+from collections import defaultdict
+from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+
 # ✅ Load environment variables
 load_dotenv()
 
-# ✅ Dynamically resolve the absolute path to backend/static
-app = Flask(__name__, static_folder='backend/static', static_url_path='')
+# ✅ Set static folder to backend/static
+app = Flask(
+    __name__,
+    static_folder=os.path.join("backend", "static"),
+    static_url_path=""
+)
+
+# --- SPA routing fix ---
+@app.route("/")
+def serve_index():
+    return send_from_directory(app.static_folder, "index.html")
+
+@app.route("/<path:path>")
+def serve_spa(path):
+    full_path = os.path.join(app.static_folder, path)
+    if os.path.exists(full_path):
+        return send_from_directory(app.static_folder, path)
+    return send_from_directory(app.static_folder, "index.html")
 
 # ✅ Secret key from .env
 app.secret_key = os.getenv("SECRET_KEY", "fallback-secret-key")
@@ -29,6 +57,16 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["30 per 10 minute
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+
+# Example: a simple API endpoint
+@app.route("/api/test")
+def test():
+    return jsonify({"message": "Backend is working!"})
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
 
 # ✅ Cloudinary Config
 cloudinary.config(
