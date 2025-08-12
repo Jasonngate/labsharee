@@ -128,9 +128,23 @@ def view_files():
     data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
     for item in uploads:
-        data[item.subject][item.experiment][item.category].append((item.filename, item.url))
+        category = item.category
+        if category == "rubric":  # rename old 'rubric' entries
+            category = "writeups"
+
+    for item in uploads:
+        category = item.category
+        if category == "rubric":
+            category = "writeups"
+
+    display_filename = item.filename.replace("rubric_", "writeup_")
+    data[item.subject][item.experiment][category].append((display_filename, item.url))
+
+
+    data[item.subject][item.experiment][category].append((item.filename, item.url))
 
     return jsonify(data), 200
+
 
 @app.route('/admin', methods=['POST'])
 def admin_login():
