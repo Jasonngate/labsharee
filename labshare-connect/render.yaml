@@ -4,7 +4,7 @@ services:
     env: python
     buildCommand: |
       # 1. Install Python dependencies
-      labshare-connect/labshare-connect/requirements.txt
+      pip install -r labshare-connect/labshare-connect/requirements.txt
 
 
       # 2. Install frontend dependencies
