@@ -60,6 +60,8 @@ class Upload(db.Model):
     category = db.Column(db.String(50), nullable=False)
     filename = db.Column(db.String(200), nullable=False)
     url = db.Column(db.String(500), nullable=False)
+    public_id = db.Column(db.String(255), nullable=True)  # Make sure this line is present
+
 
 # -------------------- API ROUTES --------------------
 
@@ -157,14 +159,16 @@ def admin_delete_file(file_id):
     file = Upload.query.get_or_404(file_id)
 
     try:
-        public_id = file.filename.rsplit('.', 1)[0]
-        cloudinary.uploader.destroy(public_id, resource_type="auto")
+        public_id = file.public_id or file.filename.rsplit('.', 1)[0]
+        cloudinary.uploader.destroy(public_id, resource_type="raw")
     except Exception as e:
-        return jsonify({"error": "Cloudinary deletion failed"}), 500
+        return jsonify({"error": f"Cloudinary deletion failed: {str(e)}"}), 500
 
     db.session.delete(file)
     db.session.commit()
     return jsonify({"message": f"Deleted {file.filename} successfully."}), 200
+
+
 
 @app.route('/admin/logout', methods=['POST'])
 def admin_logout():
