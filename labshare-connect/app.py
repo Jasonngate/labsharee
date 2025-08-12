@@ -82,11 +82,18 @@ def upload_file():
     if not subject or not experiment:
         return jsonify({"error": "Subject and Experiment are required."}), 400
 
+    MAX_FILE_SIZE = 5 * 1024 * 1024  #5 MB in bytes
     saved_files = []
     files = {'rubric': rubric, 'output': output, 'code': code}
 
     for category, file in files.items():
         if file and file.filename != '' and allowed_file(file.filename):
+            # Check file size
+            file_size = len(file.read())
+            if file_size > MAX_FILE_SIZE:
+                return jsonify({"error": f"{file.filename} exceeds max allowed size of 1.5 MB."}), 400
+            file.seek(0)  # Reset file pointer before upload
+
             original_filename = secure_filename(file.filename)
             prefixed_filename = f"{category}_{original_filename}"
 
@@ -113,6 +120,7 @@ def upload_file():
         return jsonify({"message": f"Uploaded {len(saved_files)} file(s) successfully."}), 200
     else:
         return jsonify({"error": "No valid files uploaded."}), 400
+
 
 @app.route('/view', methods=['GET'])
 def view_files():
