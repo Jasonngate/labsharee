@@ -1,23 +1,11 @@
 import os
+from collections import defaultdict
 from flask import Flask, request, jsonify, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from collections import defaultdict
-from dotenv import load_dotenv
-import cloudinary
-import cloudinary.uploader
-
-import os
-from flask import Flask, request, jsonify, session, send_from_directory
-from flask_sqlalchemy import SQLAlchemy
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from flask_cors import CORS
-from werkzeug.utils import secure_filename
-from collections import defaultdict
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
@@ -25,29 +13,17 @@ import cloudinary.uploader
 # ✅ Load environment variables
 load_dotenv()
 
-# ✅ Set static folder to backend/static
+# ✅ Set static folder for React build
 app = Flask(
     __name__,
     static_folder=os.path.join("backend", "static"),
     static_url_path=""
 )
 
-# --- SPA routing fix ---
-@app.route("/")
-def serve_index():
-    return send_from_directory(app.static_folder, "index.html")
-
-@app.route("/<path:path>")
-def serve_spa(path):
-    full_path = os.path.join(app.static_folder, path)
-    if os.path.exists(full_path):
-        return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, "index.html")
-
 # ✅ Secret key from .env
 app.secret_key = os.getenv("SECRET_KEY", "fallback-secret-key")
 
-# ✅ CORS for React (production: restrict origins)
+# ✅ CORS (restrict in production)
 CORS(app, supports_credentials=True)
 
 # ✅ Rate Limiting
@@ -58,16 +34,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-
-# Example: a simple API endpoint
-@app.route("/api/test")
-def test():
-    return jsonify({"message": "Backend is working!"})
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
-
-
 # ✅ Cloudinary Config
 cloudinary.config(
     cloud_name=os.getenv("CLOUD_NAME"),
@@ -77,8 +43,8 @@ cloudinary.config(
 )
 
 # ✅ Admin Credentials
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'vo@13w3sedr54fwf'
+ADMIN_USERNAME=os.getenv("ADMIN_USERNAME")
+ADMIN_PASSWORD=os.getenv("ADMIN_PASSWORD")
 
 # ✅ Allowed File Types
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'png', 'jpg', 'jpeg', 'py', 'ipynb', 'txt'}
@@ -95,7 +61,11 @@ class Upload(db.Model):
     filename = db.Column(db.String(200), nullable=False)
     url = db.Column(db.String(500), nullable=False)
 
-# ✅ API Routes
+# -------------------- API ROUTES --------------------
+
+@app.route("/api/test")
+def api_test():
+    return jsonify({"message": "Backend is working!"})
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -201,34 +171,24 @@ def admin_logout():
     session.pop('admin', None)
     return jsonify({"message": "Logged out"}), 200
 
-# Server react front end
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+# -------------------- REACT FRONTEND ROUTING --------------------
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
 def serve_react(path):
     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(app.static_folder, "index.html")
 
-
-
-
-
+# ✅ Handle 404 for SPA
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory(app.static_folder, "index.html")
 
 # ✅ DB Init
 with app.app_context():
     db.create_all()
 
-@app.errorhandler(404)
-def not_found(e):
-    return send_from_directory(app.static_folder, 'index.html')
-
-
-@app.route('/test1')
-def test():
-    return 'Server is running!'
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
+# -------------------- ENTRY POINT --------------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
