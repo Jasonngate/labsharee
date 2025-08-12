@@ -224,7 +224,7 @@ def not_found(e):
     return send_from_directory(app.static_folder, 'index.html')
 
 
-@app.route('/test')
+@app.route('/test1')
 def test():
     return 'Server is running!'
 
