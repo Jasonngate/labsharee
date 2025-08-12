@@ -141,7 +141,6 @@ def view_files():
     data[item.subject][item.experiment][category].append((display_filename, item.url))
 
 
-    data[item.subject][item.experiment][category].append((item.filename, item.url))
 
     return jsonify(data), 200
 
