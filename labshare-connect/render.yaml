@@ -4,7 +4,7 @@ services:
     env: python
     buildCommand: |
       # 1. Install Python dependencies
-      pip install -r labshare-connect/labshare-connect/requirements.txt
+      poetry install 
 
 
       # 2. Install frontend dependencies
