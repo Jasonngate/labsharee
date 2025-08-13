@@ -132,11 +132,6 @@ def view_files():
         if category == "rubric":  # rename old 'rubric' entries
             category = "writeups"
 
-    for item in uploads:
-        category = item.category
-        if category == "rubric":
-            category = "writeups"
-
     display_filename = item.filename.replace("rubric_", "writeup_")
     data[item.subject][item.experiment][category].append((display_filename, item.url))
 
