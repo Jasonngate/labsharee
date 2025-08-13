@@ -129,12 +129,10 @@ def view_files():
 
     for item in uploads:
         category = item.category
-        if category == "rubric":  # rename old 'rubric' entries
+        if category == "rubric":
             category = "writeups"
-
-    display_filename = item.filename.replace("rubric_", "writeup_")
-    data[item.subject][item.experiment][category].append((display_filename, item.url))
-
+        display_filename = item.filename.replace("rubric_", "writeup_")
+        data[item.subject][item.experiment][category].append((display_filename, item.url))
 
 
     return jsonify(data), 200
