@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
 from PIL import Image, ImageStat
-import imghdr
 
 # -------------------- ENV & APP SETUP --------------------
 load_dotenv()
